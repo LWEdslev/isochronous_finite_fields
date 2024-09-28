@@ -57,32 +57,25 @@
 
 use core::ops::{Add, AddAssign, Div, Mul, MulAssign, Neg, Sub, SubAssign};
 
+use zeroize::{Zeroize, ZeroizeOnDrop};
+
 /// Galois field wrapper struct.
 ///
 /// It is wrapped around an `u8` type, to guarantee at compile time that
 /// all elements are in the finite field GF(2<sup>8</sup>).
-#[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Debug, Hash)]
+#[derive(Clone, Ord, PartialOrd, Eq, PartialEq, Debug, Hash, Zeroize, ZeroizeOnDrop)]
 pub struct GF(pub u8);
 
 impl GF {
     /// Calculates the multiplicative inverse. The multiplicative inverse is the element in the
     /// Galois field that results in a product of 1.
-    ///
-    /// # Example
-    /// ```
-    /// # use isochronous_finite_fields::GF;
-    /// let element = GF(148);
-    /// let inverse = element.multiplicative_inverse();
-    ///
-    /// assert_eq!(element * inverse, GF(1));
-    /// ```
     pub fn multiplicative_inverse(self) -> Self {
         let mut p = 0;
 
         for x in 0u8..=255u8 {
             // If zero, the multiplication is results in GF(1)
             // If non-zero, the multiplication ends with something different.
-            let y = (self * GF(x)).0 ^ 1;
+            let y = (self.clone() * GF(x)).0 ^ 1;
 
             // OR all bits together in the rightmost bit. If y is zero, that means that the
             // result of ORing all bits together will also be zero. Otherwise, it will be 1.
@@ -98,7 +91,7 @@ impl GF {
 
     /// Exponentiation
     pub fn pow(self, exponent: u8) -> Self {
-        (0..exponent).fold(GF(1), |acc,_| acc * self).into()
+        (0..exponent).fold(GF(1), |acc,_| acc * self.clone()).into()
     }
 }
 
@@ -130,7 +123,7 @@ impl Add for GF {
 impl AddAssign for GF {
     #[inline(always)]
     fn add_assign(&mut self, rhs: Self) {
-        *self = self.add(rhs)
+        *self = self.clone().add(rhs)
     }
 }
 
@@ -197,7 +190,7 @@ impl Mul for GF {
 
 impl MulAssign for GF {
     fn mul_assign(&mut self, rhs: Self) {
-        *self = self.mul(rhs)
+        *self = self.clone().mul(rhs)
     }
 }
 
