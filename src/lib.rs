@@ -127,6 +127,14 @@ impl AddAssign for GF {
     }
 }
 
+impl Add for &GF {
+    type Output = GF;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        self.clone() + rhs.clone()
+    }
+}
+
 /// Subtracting two elements in the Galois field GF(2<sup>8</sup>) is equal to doing an exclusive
 /// or (XOR) between the two elements.
 /// It is also equal to adding two elements.
@@ -135,6 +143,14 @@ impl Sub for GF {
 
     fn sub(self, rhs: Self) -> Self::Output {
         self.add(rhs)
+    }
+}
+
+impl Sub for &GF {
+    type Output = GF;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        self.clone() - rhs.clone()
     }
 }
 
@@ -188,6 +204,14 @@ impl Mul for GF {
     }
 }
 
+impl Mul for &GF {
+    type Output = GF;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        self.clone() * rhs.clone()
+    }
+}
+
 impl MulAssign for GF {
     fn mul_assign(&mut self, rhs: Self) {
         *self = self.clone().mul(rhs)
@@ -199,6 +223,14 @@ impl Div for GF {
 
     fn div(self, rhs: Self) -> Self::Output {
         self * rhs.multiplicative_inverse()
+    }
+}
+
+impl Div for &GF {
+    type Output = GF;
+
+    fn div(self, rhs: Self) -> Self::Output {
+        self.clone() / rhs.clone()
     }
 }
 
