@@ -20,7 +20,6 @@
  *  SOFTWARE.
  */
 #![no_std]
-#![deny(missing_docs)]
 
 //! This crate implements
 //! [finite field arithmetic](https://en.wikipedia.org/wiki/Finite_field_arithmetic)
@@ -56,7 +55,7 @@
 //! assert_eq!(GF(110) * GF(33), GF(1));
 //! ```
 
-use core::ops::{Add, AddAssign, Mul, MulAssign, Sub, SubAssign};
+use core::ops::{Add, AddAssign, Div, Mul, MulAssign, Sub, SubAssign};
 
 /// Galois field wrapper struct.
 ///
@@ -95,6 +94,11 @@ impl GF {
         }
 
         GF(p)
+    }
+
+    /// Exponentiation
+    pub fn pow(self, exponent: u8) -> Self {
+        (0..exponent).fold(GF(1), |acc,_| acc * self).into()
     }
 }
 
@@ -197,9 +201,28 @@ impl MulAssign for GF {
     }
 }
 
+impl Div for GF {
+    type Output = GF;
+
+    fn div(self, rhs: Self) -> Self::Output {
+        self * rhs.multiplicative_inverse()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_pow() {
+        assert_eq!(GF(1).pow(5), GF(1));
+        assert_eq!(GF(5).pow(3), GF(5)*GF(5)*GF(5));
+    }
+
+    #[test]
+    fn test_div() {
+        assert_eq!((GF(42)*GF(150))/GF(150), GF(42));
+    }
 
     #[test]
     fn test_multiplicative_inverse() {
