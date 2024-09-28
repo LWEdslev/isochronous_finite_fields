@@ -55,7 +55,7 @@
 //! assert_eq!(GF(110) * GF(33), GF(1));
 //! ```
 
-use core::ops::{Add, AddAssign, Div, Mul, MulAssign, Sub, SubAssign};
+use core::ops::{Add, AddAssign, Div, Mul, MulAssign, Neg, Sub, SubAssign};
 
 /// Galois field wrapper struct.
 ///
@@ -209,9 +209,22 @@ impl Div for GF {
     }
 }
 
+impl Neg for GF {
+    type Output = GF;
+
+    fn neg(self) -> Self::Output {
+        GF(0) - self
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_neg() {
+        assert_eq!(GF(3) + (-GF(10)), GF(3) - GF(10));
+    }
 
     #[test]
     fn test_pow() {
